@@ -1,0 +1,107 @@
+#!/bin/bash
+
+#####
+# author	Lorenzo Fiorentini
+#####
+
+#THIS CODE GENERATES AUTOMATICALLY SIMPLE HEADERS AND SOURCE FILES.
+#BEWARE OF SPACES IN BASH SCRIPTS
+
+
+clear
+echo Hi $USER
+ 
+BASE_FILE=./base_cpp/base
+OLD_CONTENT=CONTENT_NAME
+OLD_DEFINE=_FILE_NAME_H
+OLD_HEADER=header
+
+while true; do
+    read -p "Do you want a class or a function? [c/f] " TYPE_FILE
+    case $TYPE_FILE in
+        [Cc]* ) eval "$TYPE_FILE='c'"; break ;;
+        [Ff]* ) eval "$TYPE_FILE='f'"; break ;;
+        * ) echo "Please answer c or f.";;
+    esac
+done
+
+while true; do
+    read -p "Do you want also the cpp file? [y/n] " CPP_CHOICE
+    case $CPP_CHOICE in
+        [Yy]* ) eval "$CPP_CHOICE='y'"; break ;;
+        [Nn]* ) eval "$CPP_CHOICE='n'"; break ;;
+        * ) echo "Please answer y or n.";;
+    esac
+done
+
+while true; do
+    read -p "Do you want move the file(s)? [y/n] " MV_CHOICE
+    case $MV_CHOICE in
+        [Yy]* ) eval "$MV_CHOICE='y'"; break ;;
+        [Nn]* ) eval "$MV_CHOICE='n'"; break ;;
+        * ) echo "Please answer y or n.";;
+    esac
+done
+
+if [ "$TYPE_FILE" == 'c' ]
+	then
+	BASE_FILE=./base_cpp/class
+	OLD_CONTENT=Class_name 
+fi
+if [ $# -eq 0 ]
+	then #if no argument is passed we just have to print a message to show what we have to do
+	echo "You have to pass 3 arguments"
+	read -p 'CONTENT_NAME: ' $NEW_CONTENT
+	read -p 'NEW_DEFINE: ' $NEW_DEFINE
+	read -p 'FILE_NAME: ' $FILE_NAME
+elif [  $# -eq 3 ]
+	then
+	NEW_CONTENT=$1
+	NEW_DEFINE=$2
+	FILE=$3
+	cp $BASE_FILE.h $FILE.h
+	sed -i -e 's/'$OLD_CONTENT'/'$NEW_CONTENT'/g' $FILE.h
+	sed -i -e 's/'$OLD_DEFINE'/'$NEW_DEFINE'/g' $FILE.h
+fi
+echo $TYPE_FILE $CPP_CHOICE $MV_CHOICE
+echo $NEW_CONTENT $NEW_DEFINE $FILE
+if [ "$CPP_CHOICE" == 'y' ]
+	then
+	cp $BASE_FILE.cpp $FILE.cpp
+	sed -i -e 's/'$OLD_CONTENT'/'$NEW_CONTENT'/g' $FILE.cpp
+	sed -i -e 's/'$OLD_DEFINE'/'$FILE.h'/g' $FILE.cpp
+	
+fi
+
+
+if [ "$MV_CHOICE" == 'y' ]
+	then
+	read -p 'PATH_TO_DESTINATION_H: ' PATH_TO_DESTINATION_H
+	mv $FILE.h $PATH_TO_DESTINATION_H/$FILE.h
+	if [ "$CPP_CHOICE" == 'y' ]
+		then
+		read -p 'PATH_TO_DESTINATION_CPP: ' PATH_TO_DESTINATION_CPP
+		mv $FILE.cpp $PATH_TO_DESTINATION_CPP/$FILE.cpp	
+	fi
+fi
+
+eval "PATH_TO_FILE_H=$PATH_TO_DESTINATION_H/$FILE.h"
+if [ "$CPP_CHOICE" == 'y' ]
+	then
+	eval "PATH_TO_FILE_CPP=$PATH_TO_DESTINATION_CPP/$FILE.cpp"
+fi
+
+while true; do
+    read -p "Do you want to open the file(s)? [y/n] " OPEN_CHOICE
+    case $OPEN_CHOICE in
+        [Yy]* ) subl $PATH_TO_FILE_H;
+		if [ "$CPP_CHOICE" == 'y' ]
+			then
+			subl $PATH_TO_FILE_CPP;
+		fi
+		break ;;
+        [Nn]* ) break ;;
+        * ) echo "Please answer y or n.";;
+    esac
+done
+

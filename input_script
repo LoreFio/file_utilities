@@ -1,0 +1,8 @@
+#!/bin/bash
+
+CHOICE = $1
+while [ "$CHOICE" != "$2" ] && [ "$CHOICE" != "$3" ]
+	do
+	read -p '['$2'/'$3']' CHOICE
+	done
+return CHOICE
